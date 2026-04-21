@@ -3,6 +3,9 @@ package main
 import (
 	"fmt"
 	"go-tweets/internal/config"
+	userHandler "go-tweets/internal/handler/user"
+	userRepo "go-tweets/internal/repository/user"
+	userService "go-tweets/internal/service/user"
 	internalsql "go-tweets/pkg/internalSQL"
 	"log"
 	"net/http"
@@ -20,7 +23,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	_, err = internalsql.ConnectMySQL(cfg)
+	db, err := internalsql.ConnectMySQL(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -33,6 +36,11 @@ func main() {
 			"message": "app is healthy",
 		})
 	})
+
+	userRepo := userRepo.NewRepository(db)
+	userService := userService.NewService(cfg, userRepo)
+	userHandler := userHandler.NewHandler(r, userService)
+	userHandler.RouteList()
 
 	server := fmt.Sprintf("127.0.0.1:%s", cfg.Port)
 	r.Run(server)
