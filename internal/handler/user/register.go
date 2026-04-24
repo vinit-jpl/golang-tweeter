@@ -20,6 +20,13 @@ func (h *Handler) Register(c *gin.Context){
 		return
 	}
 
+	if err := h.validate.Struct(req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
 	userID, statusCode, err := h.userService.Register(ctx, &req)
 	if err != nil {
 		c.JSON(statusCode, gin.H{

@@ -11,11 +11,13 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
 
 func main() {
 
 	r := gin.Default()
+	validate := validator.New()
 
 	cfg, err := config.LoadConfig()
 
@@ -39,7 +41,7 @@ func main() {
 
 	userRepo := userRepo.NewRepository(db)
 	userService := userService.NewService(cfg, userRepo)
-	userHandler := userHandler.NewHandler(r, userService)
+	userHandler := userHandler.NewHandler(r, validate, userService)
 	userHandler.RouteList()
 
 	server := fmt.Sprintf("127.0.0.1:%s", cfg.Port)
