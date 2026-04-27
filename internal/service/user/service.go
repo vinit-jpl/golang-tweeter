@@ -10,6 +10,7 @@ import (
 type UserService interface {
 	Register(ctx context.Context, req *dto.RegisterRequest) (int64, int, error)    // (userid, statusCode, error)
 	Login(ctx context.Context, req *dto.LoginRequest) (string, string, int, error) // (access token, refresh token, statuscode, error)
+	RefreshToken(ctx context.Context, req *dto.RefreshTokenRequest, userID int64) (string, string, int, error)
 }
 
 type userService struct {
