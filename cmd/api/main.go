@@ -3,8 +3,11 @@ package main
 import (
 	"fmt"
 	"go-tweets/internal/config"
+	postHandler "go-tweets/internal/handler/post"
 	userHandler "go-tweets/internal/handler/user"
+	postRepo "go-tweets/internal/repository/post"
 	userRepo "go-tweets/internal/repository/user"
+	postService "go-tweets/internal/service/post"
 	userService "go-tweets/internal/service/user"
 	internalsql "go-tweets/pkg/internalSQL"
 	"log"
@@ -40,9 +43,16 @@ func main() {
 	})
 
 	userRepo := userRepo.NewRepository(db)
+	postRepo := postRepo.NewPostRepository(db)
+
 	userService := userService.NewService(cfg, userRepo)
+	postService := postService.NewPostService(cfg, postRepo)
+
 	userHandler := userHandler.NewHandler(r, validate, userService)
+	postHandler := postHandler.NewHandler(r, validate, postService)
+
 	userHandler.RouteList(cfg.SecretJwt)
+	postHandler.RouterList(cfg.SecretJwt)
 
 	server := fmt.Sprintf("127.0.0.1:%s", cfg.Port)
 	r.Run(server)
