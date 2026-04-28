@@ -33,17 +33,15 @@ func ValidateToken(tokenStr, secretkey string, withClaimsValidation bool) (int64
 		err    error
 	)
 
-	if withClaimsValidation {
-		token, err = jwt.ParseWithClaims(tokenStr, claims, func(t *jwt.Token) (interface{}, error) {
-			return key, nil
-		})
-	}
+	token, err = jwt.ParseWithClaims(tokenStr, claims, func(t *jwt.Token) (interface{}, error) {
+		return key, nil
+	})
 
 	if err != nil {
 		return 0, "", err
 	}
 
-	if !token.Valid {
+	if withClaimsValidation && !token.Valid {
 		return 0, "", errors.New("invalid token")
 	}
 

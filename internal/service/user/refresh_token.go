@@ -34,41 +34,41 @@ func (s *userService) RefreshToken(ctx context.Context, req *dto.RefreshTokenReq
 		return "", "", http.StatusUnauthorized, errors.New("refresh token expired")
 	}
 
-
 	// check refresh token matches with request body
 	if req.RefreshToken != refresTokenExists.RefreshToken {
 		return "", "", http.StatusUnauthorized, errors.New("refresh token not found")
 	}
 
-
 	// generate new token
-	token , err := jwt.CreateToken(userID, userExists.Username, s.cfg.SecretJwt)
+	token, err := jwt.CreateToken(userID, userExists.Username, s.cfg.SecretJwt)
 	if err != nil {
 		return "", "", http.StatusInternalServerError, err
 	}
 
 	// delete old refresh token and generate new refresh token
 	err = s.userRepo.DeleteRefreshTokenByUserID(ctx, userID)
-	if err 	!= nil {
-		return "", "", http.StatusInternalServerError,err
+	if err != nil {
+		return "", "", http.StatusInternalServerError, err
 	}
 
-	refreshToken, err := refreshtoken.GenerateRefreshToken()	
+	refreshToken, err := refreshtoken.GenerateRefreshToken()
 	if err != nil {
-		return "", "", http.StatusInternalServerError,err
+		return "", "", http.StatusInternalServerError, err
 	}
 
 	now := time.Now()
 
-	s.userRepo.StoreRefreshToken(ctx, &model.RefreshTokenModel{
-		UserID: userID,
+	err = s.userRepo.StoreRefreshToken(ctx, &model.RefreshTokenModel{
+		UserID:       userID,
 		RefreshToken: refreshToken,
-		CreatedAt: now,
-		UpdatedAt: now,
-		ExpiredAt: time.Now().Add(7*24*time.Hour),
+		CreatedAt:    now,
+		UpdatedAt:    now,
+		ExpiredAt:    time.Now().Add(7 * 24 * time.Hour),
 	})
+	if err != nil {
+		return "", "", http.StatusInternalServerError, err
+	}
 
 	return token, refreshToken, http.StatusOK, nil
-
 
 }
