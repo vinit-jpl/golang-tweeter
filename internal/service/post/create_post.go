@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func (s *postService) CreatePost(ctx context.Context, req *dto.CreatePostRequest, userID int64) (int64, int, error) {
+func (s *postService) CreatePost(ctx context.Context, req *dto.CreateOrUpdatePostRequest, userID int64) (int64, int, error) {
 
 	// store post
 	now := time.Now()
