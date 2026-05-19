@@ -8,19 +8,22 @@ import (
 	"log"
 )
 
-func (r *postRepository) GetPostByID(ctx context.Context, postID int64) (*model.PostModel, error) {
+func (r *postRepository) GetPostByID(ctx context.Context, postID int64) (*model.PostWithUserModel, error) {
 
 	query := `
-		SELECT id, title, content, user_id, created_at, updated_at 
-		FROM posts
-		WHERE id = ?
+		SELECT p.id, p.title, p.content, p.user_id, p.created_at, p.updated_at, u.username, COUNT(pl.id) AS like_count 
+		FROM posts AS p
+		JOIN users as u ON p.user_id = u.id
+		LEFT JOIN post_likes AS pl ON pl.post_id = p.id
+		WHERE p.id = ?
 		AND deleted_at IS NULL
+		GROUP BY p.id, p.title, p.content, p.user_id, p.created_at, p.updated_at, u.username
 	`
 
 	log.Println("in get post by id")
 	row := r.db.QueryRowContext(ctx, query, postID)
 
-	var result model.PostModel
+	var result model.PostWithUserModel
 
 	err := row.Scan(
 		&result.ID,
@@ -29,6 +32,8 @@ func (r *postRepository) GetPostByID(ctx context.Context, postID int64) (*model.
 		&result.UserID,
 		&result.CreatedAt,
 		&result.UpdatedAt,
+		&result.Username,
+		&result.LikeCount,
 	)
 
 	fmt.Println("result ", result)

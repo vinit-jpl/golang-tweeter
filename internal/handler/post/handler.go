@@ -31,4 +31,8 @@ func (h *Handler) RouterList(secretKey string) {
 	routeAuth.PUT("/:post_id/update", h.UpdatePost)
 	routeAuth.DELETE("/:post_id/delete", h.DeletePost)
 	routeAuth.POST("/action", h.LikeOrUnlikePost)
+
+	routeWithoutAuth := h.api.Group("/tweets")
+	routeWithoutAuth.GET("/:post_id/detail", h.DetailPost)
+
 }
