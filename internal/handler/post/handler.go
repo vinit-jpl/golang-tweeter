@@ -34,5 +34,6 @@ func (h *Handler) RouterList(secretKey string) {
 
 	routeWithoutAuth := h.api.Group("/tweets")
 	routeWithoutAuth.GET("/:post_id/detail", h.DetailPost)
+	routeWithoutAuth.GET("/", h.GetAllPost)
 
 }
